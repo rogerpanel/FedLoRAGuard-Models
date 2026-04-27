@@ -1,0 +1,7 @@
+defaults: ../full.yaml
+experiment:
+  name: ablation_no_fltrust
+  output_dir: runs/ablation_no_fltrust
+federated:
+  fltrust:
+    enabled: false

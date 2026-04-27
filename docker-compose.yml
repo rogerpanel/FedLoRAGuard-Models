@@ -1,0 +1,36 @@
+# Compose unit for the FedLoRAGuard scan service.  Usable standalone or
+# slotted into the existing robustidps_web_app stack as a sibling container.
+#
+# Standalone:   docker compose up
+# RobustIDPS:   include: ./FedLoRAGuard/docker-compose.yml in the parent compose
+#               file and reference the 'fedloraguard-svc' service from the
+#               backend's network.
+
+version: "3.9"
+
+services:
+  fedloraguard-svc:
+    build:
+      context: .
+      dockerfile: service/Dockerfile
+    image: fedloraguard-svc:0.1.0
+    container_name: fedloraguard-svc
+    environment:
+      FEDLORAGUARD_CHECKPOINTS: /checkpoints
+      FEDLORAGUARD_CONFIG: /app/configs/full.yaml
+      FEDLORAGUARD_THRESHOLD: "0.6"
+    volumes:
+      - ./runs/full:/checkpoints:ro
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/healthz"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+    networks:
+      - robustidps
+
+networks:
+  robustidps:
+    driver: bridge

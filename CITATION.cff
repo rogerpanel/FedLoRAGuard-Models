@@ -1,0 +1,37 @@
+cff-version: 1.2.0
+title: >-
+  FedLoRAGuard: Federated Dynamic Graph Neural Networks with
+  Differential-Privacy Certificates for Supply-Chain Integrity Verification of
+  LoRA Adapter Ecosystems
+message: >-
+  If you use this artifact, please cite both the manuscript and the codebase.
+type: software
+authors:
+  - family-names: Anaedevha
+    given-names: Roger Nick
+    affiliation: National Research Nuclear University MEPhI
+    email: ar006@campus.mephi.ru
+  - family-names: Trofimov
+    given-names: Alexander Gennadievich
+    affiliation: National Research Nuclear University MEPhI
+  - family-names: Borodachev
+    given-names: Yury Vladimirovich
+    affiliation: AI Research Center, NRNU MEPhI
+repository-code: "https://github.com/rogerpanel/CV/tree/main/FedLoRAGuard"
+url: "https://github.com/rogerpanel/FedLoRAGuard-Models"
+license: MIT
+preferred-citation:
+  type: article
+  title: >-
+    FedLoRAGuard: Federated Dynamic Graph Neural Networks with
+    Differential-Privacy Certificates for Supply-Chain Integrity Verification
+    of LoRA Adapter Ecosystems
+  authors:
+    - family-names: Anaedevha
+      given-names: Roger Nick
+    - family-names: Trofimov
+      given-names: Alexander Gennadievich
+    - family-names: Borodachev
+      given-names: Yury Vladimirovich
+  journal: Информационные технологии и вычислительные системы (ИТиВС)
+  year: 2026

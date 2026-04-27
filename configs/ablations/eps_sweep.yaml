@@ -1,0 +1,10 @@
+# Reproduces the privacy/utility sweep in Table 2 (bottom panel).  Values of
+# epsilon_r and target_epsilon are passed via --override on the command line by
+# scripts/ablation.py (see docs/HYPERPARAMETERS.md for the exact grid).
+defaults: ../full.yaml
+experiment:
+  name: ablation_eps_sweep
+  output_dir: runs/ablation_eps_sweep
+privacy:
+  per_round_epsilon: 0.5
+  target_epsilon: 5.0

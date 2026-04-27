@@ -1,0 +1,151 @@
+# FedLoRAGuard default configuration.
+#
+# All paper-reported defaults live here; smoke.yaml and full.yaml inherit from
+# this file (see configs/smoke.yaml).  Paths are resolved relative to the
+# repository root.
+
+experiment:
+  name: fedloraguard_default
+  seed: 42
+  output_dir: runs/default
+  device: auto              # auto | cpu | cuda
+  log_level: INFO
+
+# ----- Heterogeneous continuous-time dynamic-graph schema (Definition 1) -----
+graph:
+  node_types: [adapter, base_model, contributor, application]
+  edge_types:
+    - contributes
+    - derives_from
+    - fine_tunes
+    - deploys
+    - cites
+    - co_uses
+  feature_dims:
+    weight: 64                   # spectral signature + Frobenius norms
+    text: 128                    # frozen sentence transformer
+    behavioral: 16               # downloads / deployments / centralities
+    fused: 128                   # output dim d_v
+  temporal:
+    num_neighbors: 32            # K most-recent temporal neighbors
+    time_encoding_dim: 32
+    patch_size: 4                # DyGFormer neighbor co-occurrence patches
+
+# ----- Multimodal node-feature encoder (Section 4.1) -----
+encoder:
+  weight:
+    spectral_topk: 8             # number of singular values to keep
+    use_power_iteration: true
+    power_iter_steps: 1
+  text:
+    backbone: "sentence-transformers/all-MiniLM-L6-v2"
+    cache_offline: true          # use cached random embedding if model missing
+  behavioral:
+    log_normalize: true
+  fusion: cross_attention        # cross_attention | concat_proj
+  num_heads: 4
+  dropout: 0.1
+
+# ----- Verifier model (Section 4.2) -----
+model:
+  backbone: dygformer            # dygformer | dyg_mamba | static_gat
+  hidden_dim: 128
+  num_layers: 2
+  num_heads: 4
+  dropout: 0.1
+  hgt:
+    use_relative_temporal: true
+    use_meta_relation: true
+  classifier:
+    hidden_dim: 64
+    num_classes: 2
+
+# ----- Federated training (Section 4.3, Algorithm 1) -----
+federated:
+  num_clients: 50                # N
+  clients_per_round: 10          # m = ceil(q*N) with q=0.2
+  sampling_rate: 0.2             # q
+  rounds: 100                    # T
+  local_epochs: 1
+  batch_size: 64
+  byzantine_fraction: 0.0        # set 0.16 = k/N for empirical robustness
+  topology: cross_silo
+
+  fltrust:
+    enabled: true
+    root_set_size: 200
+    score_threshold: 0.0         # ReLU(cos(g_i, g_0)) below threshold => weight 0
+  secure_aggregation:
+    enabled: true
+    quantization_bits: 16
+
+# ----- Privacy: client-level DP-SGD with PRV/RDP composition (Section 4.3) -----
+privacy:
+  enabled: true
+  mechanism: gaussian_dp_sgd
+  clip_norm: 1.0                 # S
+  noise_multiplier: 1.1          # sigma
+  target_epsilon: 5.0            # ε*
+  target_delta: 1.0e-5           # δ
+  per_round_epsilon: 0.5         # ε_r
+  accountant: prv                # prv | rdp | moments
+  rdp_orders: [1.25, 1.5, 1.75, 2, 2.5, 3, 4, 5, 6, 8, 16, 32, 64]
+
+# ----- Optimization -----
+optim:
+  optimizer: adamw
+  lr: 5.0e-4
+  weight_decay: 1.0e-4
+  grad_clip: 1.0                 # local-update gradient clip
+  scheduler: cosine_annealing
+
+# ----- Theorem 2 / certified poisoning radius (Section 5) -----
+certificate:
+  smoothing_samples: 1000        # n for Cohen-style randomized smoothing
+  alpha: 0.001                   # Clopper-Pearson confidence
+  failure_probability_budget: 0.001
+
+# ----- Calibration (Section 4.2 / Section 6) -----
+calibration:
+  method: temperature
+  num_bins: 15
+  monotone_init: true
+
+# ----- Active investigation (Section 4.3 / Section 6) -----
+investigation:
+  enabled: true
+  trigger_threshold: 0.4         # FLTrust score below this routes to DQN
+  fuzz_budget: 16
+  reward_weights:
+    confirmed_malicious: 1.0
+    confirmed_benign: 0.0
+    false_positive: -0.5
+
+# ----- Evaluation -----
+evaluate:
+  metrics: [acc, macro_f1, auroc, auprc, ece, brier, nll, aurc]
+  latency_percentiles: [50, 95, 99]
+  bootstrap_resamples: 1000
+
+# ----- LoRAchain-2026 benchmark (Section 6.1) -----
+benchmark:
+  name: lorachain_2026
+  num_adapters: 13500
+  base_model_families: [llama2-7b, llama3-8b, mistral-7b, qwen-7b]
+  attack_types:
+    - badnets
+    - vpi
+    - sleeper
+    - mtba
+    - ctba
+    - addsent
+    - badedit
+    - insertsent
+    - kurita_weight_poison
+    - cba_lora_merge
+  ranks: [4, 8, 16, 32]
+  task_corpora: [alpaca, dolly, gsm8k, squad-v2, imdb, agnews, arc-c, humaneval, glue]
+  malicious_fraction: 0.5
+  num_marketplaces: 50
+  lineage_density: 0.08          # mean derived-from edges per adapter
+  citation_density: 0.04

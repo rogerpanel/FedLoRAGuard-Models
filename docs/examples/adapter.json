@@ -1,0 +1,25 @@
+{
+  "adapter_id": "sample_001",
+  "base_model": "llama2-7b",
+  "contributor": "demo_user",
+  "application": "alpaca",
+  "rank": 4,
+  "upload_ts": 0.0,
+  "layers": [
+    {
+      "layer_name": "q_proj",
+      "B": [[0.01, 0.02, -0.01, 0.00], [0.02, -0.01, 0.01, 0.03],
+            [0.00, 0.01, 0.02, -0.02], [0.01, 0.00, -0.02, 0.01]],
+      "A": [[0.03, -0.02, 0.01, 0.00], [-0.01, 0.02, 0.00, 0.01],
+            [0.00, 0.01, 0.02, -0.01], [0.02, 0.00, -0.01, 0.01]]
+    }
+  ],
+  "model_card": "Demo LoRA adapter trained on Alpaca for instruction following.",
+  "contributor_profile": "Demo contributor; no production usage.",
+  "behavioral": {
+    "downloads": 12,
+    "deployments": 3,
+    "citations": 0,
+    "stars": 0
+  }
+}

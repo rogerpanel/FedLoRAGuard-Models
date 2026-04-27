@@ -1,0 +1,59 @@
+# Smoke configuration: shrinks every dimension so the full pipeline finishes in
+# <5 minutes on a CPU. Inherits structure from configs/default.yaml.
+defaults: default.yaml
+
+experiment:
+  name: fedloraguard_smoke
+  seed: 42
+  output_dir: runs/smoke
+
+graph:
+  feature_dims:
+    weight: 16
+    text: 16
+    behavioral: 4
+    fused: 32
+  temporal:
+    num_neighbors: 8
+    time_encoding_dim: 8
+    patch_size: 2
+
+encoder:
+  weight:
+    spectral_topk: 4
+  text:
+    cache_offline: true
+
+model:
+  hidden_dim: 32
+  num_layers: 1
+  num_heads: 2
+
+federated:
+  num_clients: 5
+  clients_per_round: 3
+  sampling_rate: 0.6
+  rounds: 5
+  local_epochs: 1
+  batch_size: 32
+  fltrust:
+    root_set_size: 16
+  secure_aggregation:
+    enabled: false               # toggleable; smoke skips Diffie-Hellman setup
+
+privacy:
+  enabled: true
+  noise_multiplier: 0.8
+  target_epsilon: 8.0
+  per_round_epsilon: 1.5
+
+certificate:
+  smoothing_samples: 100
+
+benchmark:
+  num_adapters: 200
+  num_marketplaces: 5
+  base_model_families: [llama2-7b, mistral-7b]
+  attack_types: [badnets, sleeper, kurita_weight_poison, cba_lora_merge]
+  ranks: [4, 8]
+  task_corpora: [alpaca, dolly]

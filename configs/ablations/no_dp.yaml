@@ -1,0 +1,6 @@
+defaults: ../full.yaml
+experiment:
+  name: ablation_no_dp
+  output_dir: runs/ablation_no_dp
+privacy:
+  enabled: false

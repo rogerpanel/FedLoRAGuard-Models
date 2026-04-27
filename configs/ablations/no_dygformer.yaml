@@ -1,0 +1,6 @@
+defaults: ../full.yaml
+experiment:
+  name: ablation_static_gat
+  output_dir: runs/ablation_static_gat
+model:
+  backbone: static_gat
